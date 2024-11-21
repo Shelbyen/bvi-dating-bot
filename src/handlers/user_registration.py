@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -7,7 +5,6 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 from aiogram import F
 
-from ..filters.exists_filter import ExistsFilter
 from ..keyboards.user_kb import *
 from ..schemas.subjects_schema import SubjectsCreate
 from ..schemas.user_schema import UserCreate
@@ -15,15 +12,6 @@ from ..services.subjects_service import subjects_service
 from ..services.user_service import user_service
 
 router = Router()
-
-
-def print_user(user_model, subjects):
-    t = 'Имя: ' + user_model.name + '\n'
-    t += 'Город: ' + user_model.town + '\n'
-    t += 'Класс: ' + str(user_model.school_class) + '\n'
-    t += 'Предметы: ' + get_subject_string(subjects) + '\n'
-    t += 'Описание: ' + user_model.description
-    return t
 
 
 class FillingForm(StatesGroup):
@@ -36,10 +24,11 @@ class FillingForm(StatesGroup):
     write_description = State()
 
 
-@router.message(Command('start'), StateFilter(None), ~ExistsFilter())
+@router.message(Command('start'), StateFilter(None))
 async def start_bot(message: Message, state: FSMContext):
     if await state.get_state() is not None:
         return
+    await message.answer('@Test123321hahaBot\n/start - зарегаться\n/get_anc - случайная анкета\n/del_me - удалить себя')
     await message.answer('Имя: ', parse_mode="Markdown")
     await state.set_state(FillingForm.write_name)
 
@@ -105,16 +94,5 @@ async def set_sex(message: Message, state: FSMContext):
     await user_service.create(UserCreate(id=str(message.from_user.id), **person))
     await subjects_service.create(SubjectsCreate(id=str(message.from_user.id), **subjects))
     await message.answer('Поздравляю с успешной регистрацией!!!')
-    pprint(person)
-
-@router.message(Command('get_anc'), StateFilter(None))
-async def get_anc(message: Message, state: FSMContext):
-    random_user = await user_service.get_random_user()
-    user_subjects = await subjects_service.get(random_user.id)
-    print(print_user(random_user, user_subjects))
-    await message.answer(print_user(random_user, user_subjects))
-
-@router.message(Command('del_me'), StateFilter(None))
-async def get_anc(message: Message, state: FSMContext):
-    await user_service.delete(str(message.from_user.id))
-    await message.answer('Удалено.')
+    print('Новый пользователь: ' + message.from_user.username)
+    await state.clear()
