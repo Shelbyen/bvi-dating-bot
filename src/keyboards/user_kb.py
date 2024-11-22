@@ -38,5 +38,6 @@ def choosing_priority_kb():
 
 def choosing_reaction(pk):
     kb = [[InlineKeyboardButton(text='❤️', callback_data=f'4|0|{pk}'),
-           InlineKeyboardButton(text='👎', callback_data=f'4|1|{pk}')]]
-    return InlineKeyboardMarkup(inline_keyboard=kb)
+           InlineKeyboardButton(text='👎', callback_data=f'4|1|{pk}')],
+          [InlineKeyboardButton(text='Скип', callback_data=f'4|2|{pk}')]]
+    return InlineKeyboardMarkup(inline_keyboard=kb, one_time_keyboard=True)

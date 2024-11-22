@@ -42,7 +42,6 @@ async def send_love(call: CallbackQuery):
         await call.answer('Он забанил бота')
     else:
         await call.answer('Признание в любви успешно отправлено!!!')
-    await call.message.edit_reply_markup(reply_markup=None)
     await get_anc(call.message)
 
 @router.callback_query(F.data[0] == '4', F.data[2] == '1')
@@ -53,8 +52,12 @@ async def skip_love(call: CallbackQuery):
         await call.answer('Он забанил бота')
     else:
         await call.answer('Признание в ненависти успешно отправлено!!!')
-    await call.message.edit_reply_markup(reply_markup=None)
     await get_anc(call.message)
+
+@router.callback_query(F.data[0] == '4', F.data[2] == '2')
+async def send_love(call: CallbackQuery):
+    await get_anc(call.message)
+
 
 @router.message(Command('del_me'))
 async def del_me(message: Message):
