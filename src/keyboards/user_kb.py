@@ -20,8 +20,8 @@ def choosing_subject_kb(checked_subject):
     for i in list(zip(*[iter(Subjects)]*3)):
         t = []
         for j in i:
-            t.append(InlineKeyboardButton(text=j.get_localized_name() + (' ✅' if i[0] in checked_subject else ''),
-                                          callback_data=f'2|0|' + (j.value if j.value not in checked_subject else '-1')))
+            t.append(InlineKeyboardButton(text=j.get_localized_name() + (' ✅' if j.value in checked_subject else ''),
+                                          callback_data=f'2|0|' + str(j.value)))
         kb.append(t)
     kb.append([InlineKeyboardButton(text='Готово', callback_data=f'2|1|-1')])
     return InlineKeyboardMarkup(inline_keyboard=kb)

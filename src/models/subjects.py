@@ -24,7 +24,22 @@ class Subjects(Enum):
             case Subjects.ECOLOGY:
                 return 'Экология'
 
-def get_subject_string(subs):
+    def get_db_name(self):
+        match self:
+            case Subjects.MATH:
+                return 'math'
+            case Subjects.PHYSICS:
+                return 'physics'
+            case Subjects.ASTRONOMY:
+                return 'astronomy'
+            case Subjects.COMPUTER_SCIENCE:
+                return 'computer_science'
+            case Subjects.GEOGRAPHY:
+                return 'geography'
+            case Subjects.ECOLOGY:
+                return 'ecology'
+
+def get_subjects_string(subs):
     k = []
     if subs.math:
         k.append(Subjects.get_localized_name(Subjects.MATH))
@@ -39,3 +54,9 @@ def get_subject_string(subs):
     if subs.ecology:
         k.append(Subjects.get_localized_name(Subjects.ECOLOGY))
     return ', '.join(k)
+
+def subjects_dict_to_model(sub_dict):
+    ret = {}
+    for i in sub_dict:
+        ret[Subjects.get_db_name(Subjects(i))] = sub_dict[i]
+    return ret
