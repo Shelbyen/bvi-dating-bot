@@ -3,12 +3,12 @@ from aiogram.exceptions import TelegramForbiddenError
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 
+from ..models.subjects import get_subject_string
 from ..services.subjects_service import subjects_service
 from ..services.user_service import user_service
 from ..keyboards.user_kb import *
 
 router = Router()
-
 
 def digit_to_sex(d, p_mode=False):
     if not p_mode:

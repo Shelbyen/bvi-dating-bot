@@ -17,7 +17,7 @@ class UserCreate(BaseModel):
     id: str
     name: str
     sex: bool
-    priority: bool
+    priority: Optional[bool]
     town: Optional[str]
     description: Optional[str]
     school_class: int

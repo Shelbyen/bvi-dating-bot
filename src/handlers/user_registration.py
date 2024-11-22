@@ -64,20 +64,20 @@ async def set_subject(call: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(StateFilter(FillingForm.choosing_subjects), F.data[0] == '2', F.data[2] == '1')
-async def set_sex(call: CallbackQuery, state: FSMContext):
+async def set_town(call: CallbackQuery, state: FSMContext):
     await call.message.answer('Введите ваш город: ')
     await state.set_state(FillingForm.write_town)
 
 
 @router.message(StateFilter(FillingForm.write_town))
-async def set_sex(message: Message, state: FSMContext):
+async def set_priority(message: Message, state: FSMContext):
     await state.update_data({'town': message.text})
     await message.answer('Выберите кто интересует: ', reply_markup=choosing_priority_kb())
     await state.set_state(FillingForm.set_priority)
 
 
 @router.callback_query(StateFilter(FillingForm.set_priority), F.data[0] == '3')
-async def set_sex(call: CallbackQuery, state: FSMContext):
+async def set_description(call: CallbackQuery, state: FSMContext):
     await state.update_data({'priority': call.data.split('|')[1]})
     await call.message.answer(
         'Если хочешь добавить в анкету что-то еще, можешь написать сейчас. Например: прошел(-а) все b-side в celeste, мощнейше затащил(-а) всерос, шарю во всех сортах чая и хочу это обсудить и т.п.'

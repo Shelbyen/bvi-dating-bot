@@ -1,12 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-
-def get_subject():
-    return {'math': 'Математика', 'physics': 'Физика', 'astronomy': 'Астрономия', 'computer_science': 'Информатика', 'geography': 'География', 'ecology': 'Экология'}
-def get_subject_string(subs):
-    subjects = get_subject()
-    subs = {k: v for k, v in subs.__dict__.items() if subjects.get(k)}
-    return ', '.join(subjects[i] for i in subs if subs[i])
+from src.models.subjects import Subjects
 
 
 def choosing_sex_kb():
@@ -23,11 +17,12 @@ def choosing_class_kb():
 
 def choosing_subject_kb(checked_subject):
     kb = []
-    subs = get_subject()
-    for i in list(zip(*[iter(subs)]*3)):
-        kb.append([InlineKeyboardButton(text=subs[i[0]] + (' ✅' if i[0] in checked_subject else ''), callback_data=f'2|0|' + (i[0] if i[0] not in checked_subject else '-1')),
-               InlineKeyboardButton(text=subs[i[1]] + (' ✅' if i[1] in checked_subject else ''), callback_data=f'2|0|' + (i[1] if i[1] not in checked_subject else '-1')),
-               InlineKeyboardButton(text=subs[i[2]] + (' ✅' if i[2] in checked_subject else ''), callback_data=f'2|0|' + (i[2] if i[2] not in checked_subject else '-1'))])
+    for i in list(zip(*[iter(Subjects)]*3)):
+        t = []
+        for j in i:
+            t.append(InlineKeyboardButton(text=j.get_localized_name() + (' ✅' if i[0] in checked_subject else ''),
+                                          callback_data=f'2|0|' + (j.value if j.value not in checked_subject else '-1')))
+        kb.append(t)
     kb.append([InlineKeyboardButton(text='Готово', callback_data=f'2|1|-1')])
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
