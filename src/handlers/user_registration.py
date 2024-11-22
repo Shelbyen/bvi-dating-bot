@@ -6,6 +6,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram import F
 
 from ..keyboards.user_kb import *
+from ..models.subjects import subjects_dict_to_model
 from ..schemas.subjects_schema import SubjectsCreate
 from ..schemas.user_schema import UserCreate
 from ..services.subjects_service import subjects_service
@@ -58,7 +59,10 @@ async def set_class(call: CallbackQuery, state: FSMContext):
                        F.data[4:6] != '-1')
 async def set_subject(call: CallbackQuery, state: FSMContext):
     choosing_subject = (await state.get_data()).setdefault('subjects', {})
-    choosing_subject[call.data.split('|')[2]] = True
+    if choosing_subject.get(int(call.data.split('|')[2])):
+        choosing_subject.pop(int(call.data.split('|')[2]))
+    else:
+        choosing_subject[int(call.data.split('|')[2])] = True
     await state.update_data({"subjects": choosing_subject})
     await call.message.edit_reply_markup(reply_markup=choosing_subject_kb(choosing_subject))
 
@@ -92,7 +96,7 @@ async def set_sex(message: Message, state: FSMContext):
     subjects = person.setdefault('subjects', {})
     person.pop('subjects')
     await user_service.create(UserCreate(id=str(message.from_user.id), **person))
-    await subjects_service.create(SubjectsCreate(id=str(message.from_user.id), **subjects))
+    await subjects_service.create(SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects)))
     await message.answer('Поздравляю с успешной регистрацией!!!')
     print('Новый пользователь: ' + message.from_user.username)
     await state.clear()

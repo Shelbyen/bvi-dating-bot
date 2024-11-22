@@ -3,7 +3,7 @@ from aiogram.exceptions import TelegramForbiddenError
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 
-from ..models.subjects import get_subject_string
+from ..models.subjects import get_subjects_string
 from ..services.subjects_service import subjects_service
 from ..services.user_service import user_service
 from ..keyboards.user_kb import *
@@ -22,7 +22,7 @@ def print_user(user_model, subjects):
     t += 'Кем интересуется: ' + digit_to_sex(user_model.priority, True) + '\n'
     t += 'Город: ' + user_model.town + '\n'
     t += 'Класс: ' + str(user_model.school_class) + '\n'
-    t += 'Предметы: ' + get_subject_string(subjects) + '\n'
+    t += 'Предметы: ' + get_subjects_string(subjects) + '\n'
     t += 'Описание: ' + user_model.description
     return t
 
