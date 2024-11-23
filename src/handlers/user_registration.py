@@ -1,8 +1,10 @@
+from typing import Optional, List
+
 from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 from aiogram import F
 
 from ..keyboards.user_kb import *
@@ -22,6 +24,7 @@ class FillingForm(StatesGroup):
     choosing_subjects = State()
     write_town = State()
     set_priority = State()
+    send_photo = State()
     write_description = State()
 
 
@@ -81,8 +84,40 @@ async def set_priority(message: Message, state: FSMContext):
 
 
 @router.callback_query(StateFilter(FillingForm.set_priority), F.data[0] == '3')
-async def set_description(call: CallbackQuery, state: FSMContext):
+async def send_photo(call: CallbackQuery, state: FSMContext):
     await state.update_data({'priority': None if call.data.split('|')[1] == '2' else call.data.split('|')[1]})
+    await call.message.answer('Отправь самое сексуальное фото: ', reply_markup=skip_send_photo())
+    await state.set_state(FillingForm.send_photo)
+
+
+@router.message(StateFilter(FillingForm.send_photo))
+async def set_description_with_photo(message: Message, state: FSMContext, album: Optional[List[Message]] = None):
+    media_group = []
+    if album:
+        for i, msg in enumerate(album):
+            if msg.photo:
+                file_id = msg.photo[-1].file_id
+                await message.bot.download(msg.photo[-1], f'{message.from_user.id}_{i}')
+                media_group.append(InputMediaPhoto(media=file_id, caption=msg.caption))
+            else:
+                await message.answer('Это не фото! Отправь нормально! Жду!')
+                return
+        await state.update_data({'photo_count': len(album)})
+    elif message.photo:
+        await message.bot.download(message.photo[-1], f'photos/{message.from_user.id}_0.jpg')
+        await state.update_data({'photo_count': 1})
+    else:
+        await message.answer('Это не фото! Отправь нормально! Жду!')
+        return
+
+    await message.answer(
+        'Если хочешь добавить в анкету что-то еще, можешь написать сейчас. Например: прошел(-а) все b-side в celeste, мощнейше затащил(-а) всерос, шарю во всех сортах чая и хочу это обсудить и т.п.'
+    )
+    await state.set_state(FillingForm.write_description)
+
+@router.callback_query(StateFilter(FillingForm.send_photo))
+async def set_description(call: CallbackQuery, state: FSMContext):
+    await state.update_data({'photo_count': 0})
     await call.message.answer(
         'Если хочешь добавить в анкету что-то еще, можешь написать сейчас. Например: прошел(-а) все b-side в celeste, мощнейше затащил(-а) всерос, шарю во всех сортах чая и хочу это обсудить и т.п.'
     )
@@ -95,6 +130,7 @@ async def set_sex(message: Message, state: FSMContext):
     person['description'] = message.text
     subjects = person.setdefault('subjects', {})
     person.pop('subjects')
+    person.pop('photo_count')
     await user_service.create(UserCreate(id=str(message.from_user.id), **person))
     await subjects_service.create(SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects)))
     await message.answer('Поздравляю с успешной регистрацией!!!')

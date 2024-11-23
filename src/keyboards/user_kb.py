@@ -37,3 +37,7 @@ def choosing_reaction(pk):
            InlineKeyboardButton(text='👎', callback_data=f'4|1|{pk}')],
           [InlineKeyboardButton(text='Скип', callback_data=f'4|2|{pk}')]]
     return InlineKeyboardMarkup(inline_keyboard=kb, one_time_keyboard=True)
+
+def skip_send_photo():
+    kb = [[InlineKeyboardButton(text='Скип', callback_data='-')]]
+    return InlineKeyboardMarkup(inline_keyboard=kb, one_time_keyboard=True)
