@@ -102,10 +102,10 @@ async def set_description_with_photo(message: Message, state: FSMContext, album:
             else:
                 await message.answer('Это не фото! Отправь нормально! Жду!')
                 return
-        await state.update_data({'photo_count': len(album)})
+        await state.update_data({'media_count': len(album)})
     elif message.photo:
         await message.bot.download(message.photo[-1], f'photos/{message.from_user.id}_0.jpg')
-        await state.update_data({'photo_count': 1})
+        await state.update_data({'media_count': 1})
     else:
         await message.answer('Это не фото! Отправь нормально! Жду!')
         return
@@ -117,7 +117,6 @@ async def set_description_with_photo(message: Message, state: FSMContext, album:
 
 @router.callback_query(StateFilter(FillingForm.send_photo))
 async def set_description(call: CallbackQuery, state: FSMContext):
-    await state.update_data({'photo_count': 0})
     await call.message.answer(
         'Если хочешь добавить в анкету что-то еще, можешь написать сейчас. Например: прошел(-а) все b-side в celeste, мощнейше затащил(-а) всерос, шарю во всех сортах чая и хочу это обсудить и т.п.'
     )
@@ -130,7 +129,6 @@ async def set_sex(message: Message, state: FSMContext):
     person['description'] = message.text
     subjects = person.setdefault('subjects', {})
     person.pop('subjects')
-    person.pop('photo_count')
     await user_service.create(UserCreate(id=str(message.from_user.id), **person))
     await subjects_service.create(SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects)))
     await message.answer('Поздравляю с успешной регистрацией!!!')
