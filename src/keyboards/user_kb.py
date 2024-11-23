@@ -28,7 +28,8 @@ def choosing_subject_kb(checked_subject):
 
 def choosing_priority_kb():
     kb = [[InlineKeyboardButton(text='Парни ✅', callback_data='3|0|'),
-           InlineKeyboardButton(text='Девушки ⛔️', callback_data='3|1|')]]
+           InlineKeyboardButton(text='Девушки ⛔️', callback_data='3|1|')],
+          [InlineKeyboardButton(text='ВСЕ!', callback_data='3|2|')]]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 def choosing_reaction(pk):

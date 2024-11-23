@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/FastDatingBotBVI.iml" filepath="$PROJECT_DIR$/.idea/FastDatingBotBVI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/bvi-dating-bot.iml" filepath="$PROJECT_DIR$/.idea/bvi-dating-bot.iml" />
     </modules>
   </component>
 </project>

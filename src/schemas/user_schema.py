@@ -7,7 +7,7 @@ class UserBase(BaseModel):
     id: str
     name: str
     sex: bool
-    priority: bool
+    priority: Optional[bool]
     town: int
     description: str
     school_class: int

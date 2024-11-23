@@ -11,6 +11,8 @@ from ..keyboards.user_kb import *
 router = Router()
 
 def digit_to_sex(d, p_mode=False):
+    if d is None:
+        return 'Все!'
     if not p_mode:
         return 'Девушка' if d else 'Парень'
     return 'Девушки' if d else 'Парни'

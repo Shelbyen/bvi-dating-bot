@@ -82,7 +82,7 @@ async def set_priority(message: Message, state: FSMContext):
 
 @router.callback_query(StateFilter(FillingForm.set_priority), F.data[0] == '3')
 async def set_description(call: CallbackQuery, state: FSMContext):
-    await state.update_data({'priority': call.data.split('|')[1]})
+    await state.update_data({'priority': None if call.data.split('|')[1] == '2' else call.data.split('|')[1]})
     await call.message.answer(
         'Если хочешь добавить в анкету что-то еще, можешь написать сейчас. Например: прошел(-а) все b-side в celeste, мощнейше затащил(-а) всерос, шарю во всех сортах чая и хочу это обсудить и т.п.'
     )
@@ -98,5 +98,5 @@ async def set_sex(message: Message, state: FSMContext):
     await user_service.create(UserCreate(id=str(message.from_user.id), **person))
     await subjects_service.create(SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects)))
     await message.answer('Поздравляю с успешной регистрацией!!!')
-    print('Новый пользователь: ' + message.from_user.username)
+    print('Новый пользователь: ' + str(message.from_user.username))
     await state.clear()
