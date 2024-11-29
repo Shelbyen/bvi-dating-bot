@@ -2,10 +2,9 @@ from typing import Optional
 
 from sqlalchemy import select, func
 
-from src.repositories.sqlalchemy_repository import SqlAlchemyRepository
-from src.models.user_model import UserModel
 from src.config.database.db_helper import db_helper
-
+from src.models.user_model import UserModel
+from src.repositories.sqlalchemy_repository import SqlAlchemyRepository
 from ..schemas.user_schema import UserCreate, UserUpdate
 
 
@@ -22,8 +21,6 @@ class UserRepository(SqlAlchemyRepository[UserModel, UserCreate, UserUpdate]):
         async with self._session_factory() as session:
             result = await session.execute(stmt)
             return result.scalar() is not None
-
-
 
 
 user_repository = UserRepository(model=UserModel, db_session=db_helper.get_db_session)

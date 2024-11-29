@@ -1,6 +1,9 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+from src.schemas.photo_schema import PhotoBase
+from src.schemas.subjects_schema import SubjectsBase, SubjectsCreate
 
 
 class UserBase(BaseModel):
@@ -11,7 +14,8 @@ class UserBase(BaseModel):
     town: int
     description: str
     school_class: int
-    media_count: int
+    subjects: SubjectsBase
+    photos: PhotoBase
 
 
 class UserCreate(BaseModel):
@@ -22,7 +26,6 @@ class UserCreate(BaseModel):
     town: Optional[str]
     description: Optional[str]
     school_class: int
-    media_count: int = Field(default=0)
 
 
 class UserUpdate(UserBase):

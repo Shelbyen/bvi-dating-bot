@@ -1,15 +1,15 @@
 from typing import Optional, List
 
+from aiogram import F
 from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery, InputMediaPhoto
-from aiogram import F
 
 from ..keyboards.user_kb import *
 from ..models.subjects import subjects_dict_to_model
-from ..schemas.subjects_schema import SubjectsCreate
+from ..schemas.subjects_schema import SubjectsCreate, SubjectsBase
 from ..schemas.user_schema import UserCreate
 from ..services.subjects_service import subjects_service
 from ..services.user_service import user_service
@@ -97,23 +97,22 @@ async def set_description_with_photo(message: Message, state: FSMContext, album:
         for i, msg in enumerate(album):
             if msg.photo:
                 file_id = msg.photo[-1].file_id
-                await message.bot.download(msg.photo[-1], f'{message.from_user.id}_{i}')
-                media_group.append(InputMediaPhoto(media=file_id, caption=msg.caption))
+                media_group.append(file_id)
             else:
                 await message.answer('Это не фото! Отправь нормально! Жду!')
                 return
-        await state.update_data({'media_count': len(album)})
     elif message.photo:
         await message.bot.download(message.photo[-1], f'photos/{message.from_user.id}_0.jpg')
-        await state.update_data({'media_count': 1})
+        media_group.append(message.photo[-1].file_id)
     else:
         await message.answer('Это не фото! Отправь нормально! Жду!')
         return
-
+    await state.update_data({'photos': media_group})
     await message.answer(
         'Если хочешь добавить в анкету что-то еще, можешь написать сейчас. Например: прошел(-а) все b-side в celeste, мощнейше затащил(-а) всерос, шарю во всех сортах чая и хочу это обсудить и т.п.'
     )
     await state.set_state(FillingForm.write_description)
+
 
 @router.callback_query(StateFilter(FillingForm.send_photo))
 async def set_description(call: CallbackQuery, state: FSMContext):
@@ -129,8 +128,13 @@ async def set_sex(message: Message, state: FSMContext):
     person['description'] = message.text
     subjects = person.setdefault('subjects', {})
     person.pop('subjects')
-    await user_service.create(UserCreate(id=str(message.from_user.id), **person))
-    await subjects_service.create(SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects)))
+    subjects = SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects))
+    new_user = UserCreate(id=str(message.from_user.id), **person)
+
+    # person.update({'subjects': SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects))})
+    await user_service.create(new_user)
+    await subjects_service.create(subjects)
+
     await message.answer('Поздравляю с успешной регистрацией!!!')
     print('Новый пользователь: ' + str(message.from_user.username))
     await state.clear()

@@ -41,12 +41,35 @@ def print_user(user_model, subjects):
     return t
 
 
+# async def get_photos(photo_count):
+#     if photo_count == 0:
+#         return None
+#     if photo_count == 1:
+#         return
+#     media_group = []
+#     for msg in album:
+#         if msg.photo:
+#             file_id = msg.photo[-1].file_id
+#             media_group.append(InputMediaPhoto(media=file_id, caption=msg.caption))
+#         else:
+#             obj_dict = msg.dict()
+#             file_id = obj_dict[msg.content_type]['file_id']
+#             if msg.document:
+#                 media_group.append(InputMediaDocument(media=file_id, caption=msg.caption))
+#             elif msg.video:
+#                 media_group.append(InputMediaVideo(media=file_id, caption=msg.caption))
+#             elif msg.audio:
+#                 media_group.append(InputMediaAudio(media=file_id, caption=msg.caption))
+#             elif msg.animation:
+#                 media_group.append(InputMediaAnimation(media=file_id, caption=msg.caption))
+
+
 @router.message(Command('get_anc'))
 async def get_anc(message: Message):
     random_user = await user_service.get_random_user()
-    user_subjects = await subjects_service.get(random_user.id)
-    print(print_user(random_user, user_subjects))
-    await message.answer(print_user(random_user, user_subjects), reply_markup=choosing_reaction(random_user.id))
+    # user_subjects = await subjects_service.get(random_user.id)
+    print(print_user(random_user, random_user.subjects))
+    await message.answer(print_user(random_user, random_user.subjects), reply_markup=choosing_reaction(random_user.id))
 
 
 @router.callback_query(F.data[0] == '4', F.data[2] == '0')
@@ -74,6 +97,13 @@ async def skip_negative(call: CallbackQuery):
 @router.callback_query(F.data[0] == '4', F.data[2] == '2')
 async def skip_anc(call: CallbackQuery):
     await get_anc(call.message)
+
+
+@router.message(Command('get_me'))
+async def get_me(message: Message):
+    random_user = await user_service.get(str(message.from_user.id))
+    await message.answer(print_user(random_user, random_user.subjects))
+
 
 
 @router.message(Command('del_me'))

@@ -1,7 +1,6 @@
 from sqlalchemy import Boolean, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
-# from src.models.user_model import UserModel
 from .base_model import Base
 
 
@@ -15,8 +14,3 @@ class SubjectsModel(Base):
     computer_science: Mapped[bool] = mapped_column(Boolean, default=False)
     geography: Mapped[bool] = mapped_column(Boolean, default=False)
     ecology: Mapped[bool] = mapped_column(Boolean, default=False)
-    # user: Mapped["UserModel"] = relationship(
-    #     "UserModel",
-    #     back_populates="subjects",
-    #     uselist=False
-    # )

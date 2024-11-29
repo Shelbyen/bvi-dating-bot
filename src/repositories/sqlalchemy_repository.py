@@ -43,7 +43,7 @@ class SqlAlchemyRepository(AbstractRepository, Generic[ModelType, CreateSchemaTy
     async def get_single(self, **filters) -> Optional[ModelType] | None:
         async with self._session_factory() as session:
             row = await session.execute(select(self.model).filter_by(**filters))
-            return row.scalar_one_or_none()
+            return row.unique().scalar_one_or_none()
 
     async def get_multi(
             self,
