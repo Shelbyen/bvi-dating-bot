@@ -15,7 +15,7 @@ class UserBase(BaseModel):
     description: str
     school_class: int
     subjects: SubjectsBase
-    photos: PhotoBase
+    photos: list[PhotoBase]
 
 
 class UserCreate(BaseModel):

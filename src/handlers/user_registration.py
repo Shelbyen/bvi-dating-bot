@@ -9,8 +9,10 @@ from aiogram.types import Message, CallbackQuery, InputMediaPhoto
 
 from ..keyboards.user_kb import *
 from ..models.subjects import subjects_dict_to_model
+from ..schemas.photo_schema import PhotoCreate
 from ..schemas.subjects_schema import SubjectsCreate, SubjectsBase
 from ..schemas.user_schema import UserCreate
+from ..services.photo_service import photo_service
 from ..services.subjects_service import subjects_service
 from ..services.user_service import user_service
 
@@ -97,13 +99,13 @@ async def set_description_with_photo(message: Message, state: FSMContext, album:
         for i, msg in enumerate(album):
             if msg.photo:
                 file_id = msg.photo[-1].file_id
-                media_group.append(file_id)
+                media_group.append(PhotoCreate(id=str(message.from_user.id), photo_id=file_id))
             else:
                 await message.answer('Это не фото! Отправь нормально! Жду!')
                 return
     elif message.photo:
-        await message.bot.download(message.photo[-1], f'photos/{message.from_user.id}_0.jpg')
-        media_group.append(message.photo[-1].file_id)
+        # await message.bot.download(message.photo[-1], f'photos/{message.from_user.id}_0.jpg')
+        media_group.append(PhotoCreate(id=str(message.from_user.id), photo_id=message.photo[-1].file_id))
     else:
         await message.answer('Это не фото! Отправь нормально! Жду!')
         return
@@ -127,13 +129,15 @@ async def set_sex(message: Message, state: FSMContext):
     person = await state.get_data()
     person['description'] = message.text
     subjects = person.setdefault('subjects', {})
+    photos = person.setdefault('photos', [])
     person.pop('subjects')
     subjects = SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects))
-    new_user = UserCreate(id=str(message.from_user.id), **person)
+    user = UserCreate(id=str(message.from_user.id), **person)
 
     # person.update({'subjects': SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects))})
-    await user_service.create(new_user)
+    await user_service.create(user)
     await subjects_service.create(subjects)
+    await photo_service.create_many(photos)
 
     await message.answer('Поздравляю с успешной регистрацией!!!')
     print('Новый пользователь: ' + str(message.from_user.username))

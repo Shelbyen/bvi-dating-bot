@@ -16,17 +16,18 @@ class UserModel(Base):
     town: Mapped[str] = mapped_column(String, default='Москва')
     description: Mapped[str] = mapped_column(Text, default='')
     school_class: Mapped[int] = mapped_column(SmallInteger)
-    subjects: Mapped["SubjectsModel"] = relationship(
+    subjects = relationship(
         "SubjectsModel",
         uselist=False,
         lazy="joined",
         cascade="all, delete-orphan",
-        single_parent=True
+        single_parent=True,
+        backref="user",
+        passive_deletes=True
     )
     photos: Mapped[list["PhotoModel"]] = relationship(
         "PhotoModel",
         uselist=True,
         lazy="joined",
-        cascade="all, delete-orphan",
-        single_parent=True
+        cascade="all, delete-orphan"
     )

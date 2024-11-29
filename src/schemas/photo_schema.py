@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class PhotoBase(BaseModel):
     id: str
-    file_id: str
+    photo_id: str
 
 
 class PhotoCreate(PhotoBase):
