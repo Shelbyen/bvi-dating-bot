@@ -39,7 +39,7 @@ def choosing_reaction():
     kb = [[KeyboardButton(text='❤️'),
            KeyboardButton(text='👎')],
           [KeyboardButton(text='Скип')]]
-    return ReplyKeyboardMarkup(keyboard=kb)
+    return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
 
 
 def skip_send_photo():

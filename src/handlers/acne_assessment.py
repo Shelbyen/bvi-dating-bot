@@ -5,7 +5,7 @@ from aiogram.exceptions import TelegramForbiddenError
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, CallbackQuery, InputMediaPhoto
+from aiogram.types import Message, InputMediaPhoto
 
 from ..keyboards.user_kb import *
 from ..models.subjects import get_subjects_string
@@ -65,7 +65,7 @@ def generate_media_group(photos, message_text):
 async def generate_all_message(user, message):
     message_text = print_user(user, user.subjects, len(user.photos) != 0)
     if len(user.photos) > 0:
-        message.answer_media_group(generate_media_group(user.photos, message_text))
+        await message.answer_media_group(generate_media_group(user.photos, message_text))
         return
     await message.answer(message_text)
 
@@ -112,15 +112,23 @@ async def skip_anc(message: Message, state: FSMContext):
     await get_anc(message, state)
 
 
-@router.message(Command('get_me'))
-async def get_me(message: Message):
+@router.message(StateFilter(None))
+async def start_anc_past_reload(message: Message, state: FSMContext):
+    await start_get_anc(message, state)
+
+
+@router.message(Command('get_me'), StateFilter(None))
+async def get_me(message: Message, state: FSMContext):
+    print(1)
     random_user = await user_service.get(str(message.from_user.id))
     await generate_all_message(random_user, message)
+    await state.clear()
 
 
 @router.message(Command('del_me'))
-async def del_me(message: Message):
+async def del_me(message: Message, state: FSMContext):
     await subjects_service.delete(str(message.from_user.id))
     await photo_service.delete(str(message.from_user.id))
     await user_service.delete(str(message.from_user.id))
     await message.answer('Удалено.')
+    await state.clear()
