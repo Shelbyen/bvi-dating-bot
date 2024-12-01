@@ -3,9 +3,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 
 from src.config.project_config import settings
-from src.handlers import user_registration, acne_assessment
-from src.middlewares.album_middleware import AlbumMiddleware
-from src.middlewares.permission_middleware import PermissionMiddleware
+from src.handlers import routers
 
 
 async def on_startup():
@@ -16,11 +14,7 @@ async def main():
     bot = Bot(token=settings.TOKEN)
     dp = Dispatcher()
 
-    user_registration.router.message.middleware(PermissionMiddleware(False))
-    user_registration.router.message.middleware(AlbumMiddleware())
-    acne_assessment.router.message.middleware(PermissionMiddleware())
-
-    dp.include_routers(user_registration.router, acne_assessment.router)
+    dp.include_routers(*routers)
 
     dp.startup.register(on_startup)
 

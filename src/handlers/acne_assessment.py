@@ -58,7 +58,6 @@ def generate_media_group(photos, message_text):
         media_group.append(InputMediaPhoto(media=msg.photo_id))
     if len(media_group) > 0:
         media_group[0].caption = message_text
-
     return media_group
 
 
