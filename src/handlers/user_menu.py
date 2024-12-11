@@ -95,7 +95,9 @@ async def send_new_photo(message: Message, state: FSMContext, album: Optional[Li
     await photo_service.delete(str(message.from_user.id))
     await photo_service.create_many(media_group)
     await message.answer('Фото обновлено!')
-    user: UserBase = (await state.get_data()).setdefault('user', await user_service.get(str(message.from_user.id)))
+
+    user: UserBase = await user_service.get(str(message.from_user.id))
+    await state.update_data({'user': user})
     await generate_all_message(user, message)
 
     old_photos = await state.get_value('old_photos')
