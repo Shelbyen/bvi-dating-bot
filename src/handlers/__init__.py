@@ -7,6 +7,7 @@ user_registration.router.message.filter(PermissionFilter(False))
 user_registration.router.message.middleware(AlbumMiddleware())
 acne_assessment.router.message.filter(PermissionFilter())
 user_menu.router.message.filter(PermissionFilter())
+user_menu.router.message.middleware(AlbumMiddleware())
 
 routers = (
     user_registration.router,

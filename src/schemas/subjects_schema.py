@@ -21,8 +21,13 @@ class SubjectsCreate(BaseModel):
     ecology: bool = Field(default=False)
 
 
-class SubjectsUpdate(SubjectsBase):
-    pass
+class SubjectsUpdate(BaseModel):
+    math: bool = Field(default=False)
+    physics: bool = Field(default=False)
+    astronomy: bool = Field(default=False)
+    computer_science: bool = Field(default=False)
+    geography: bool = Field(default=False)
+    ecology: bool = Field(default=False)
 
 
 class SubjectsResponse(BaseModel):

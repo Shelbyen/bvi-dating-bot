@@ -10,13 +10,14 @@ from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 
 from ..keyboards.user_menu_kb import user_menu
 from ..keyboards.user_registration_kb import *
-from ..models.subjects import subjects_dict_to_model
+from ..models.subjects import subjects_dict_to_model, get_subjects_string
 from ..schemas.photo_schema import PhotoCreate
 from ..schemas.subjects_schema import SubjectsCreate
 from ..schemas.user_schema import UserCreate
 from ..services.photo_service import photo_service
 from ..services.subjects_service import subjects_service
 from ..services.user_service import user_service
+from ..use_cases.send_user_info_use_case import generate_all_message
 
 router = Router()
 
@@ -65,7 +66,7 @@ async def set_class(message: Message, state: FSMContext):
         if 8 <= int(message.text) <= 11:
             await state.update_data({'school_class': message.text})
             send_message = await message.answer('Выберите предметы (можно несколько): ')
-            await send_message.edit_reply_markup(reply_markup=choosing_subject_kb([]))
+            await send_message.edit_reply_markup(reply_markup=choosing_subject_kb({}))
             await state.set_state(FillingForm.choosing_subjects)
             return
     await message.answer('Введи класс нормально, только число (только с 8 по 11)')
@@ -152,14 +153,28 @@ async def set_sex(message: Message, state: FSMContext):
     await subjects_service.create(subjects)
     await photo_service.create_many(photos)
 
-    await message.answer('Поздравляю с успешной регистрацией!!!', reply_markup=user_menu())
+    await message.answer('Поздравляю с успешной регистрацией!!!', reply_markup=user_menu(False))
+    user = await user_service.get(user.id)
+    await generate_all_message(user, message)
 
     if old_user:
+        old_user = old_user.__dict__
+        old_user.pop('_sa_instance_state')
+        old_user.pop('updated_at')
+        old_user.pop('created_at')
+        old_user.pop('id')
         edited = {}
+        person.pop('old_user')
+        person.pop('subjects')
+        person['sex'] = bool(person['sex'])
+        person['priority'] = bool(person['priority']) if person['priority'] else None
         for i in person:
-            if person[i] != old_user[i]:
-                edited[i] = f"{person[i]} -> {old_user[i]}"
-        logging.info('[Edit profile] ' + str(edited))
+            if str(person[i]) != str(old_user[i]):
+                edited[i] = f"{old_user[i]} -> {person[i]}"
+        if get_subjects_string(user.subjects) != get_subjects_string(old_user['subjects']):
+            edited['subjects'] = f"{get_subjects_string(old_user['subjects'])} -> {get_subjects_string(user.subjects)}"
+        if len(edited) > 0:
+            logging.info('[Edit profile] ' + str(edited))
     else:
         logging.info('[New profile] ' + str(message.from_user.id))
 

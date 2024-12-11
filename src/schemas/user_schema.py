@@ -16,7 +16,7 @@ class UserBase(BaseModel):
     school_class: int
     subjects: SubjectsBase
     photos: list[PhotoBase]
-    deactivated: bool = Field(default=False)
+    deactivated: bool
 
 
 class UserCreate(BaseModel):
@@ -27,10 +27,16 @@ class UserCreate(BaseModel):
     town: Optional[str]
     description: Optional[str]
     school_class: int
-    deactivated: bool
+    deactivated: bool = Field(default=False)
 
 
 class UserUpdate(BaseModel):
+    name: str
+    sex: bool
+    priority: Optional[bool]
+    town: Optional[str]
+    description: Optional[str]
+    school_class: int
     deactivated: bool
 
 
