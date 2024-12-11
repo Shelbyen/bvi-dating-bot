@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from src.schemas.photo_schema import PhotoBase
-from src.schemas.subjects_schema import SubjectsBase, SubjectsCreate
+from src.schemas.subjects_schema import SubjectsBase
 
 
 class UserBase(BaseModel):

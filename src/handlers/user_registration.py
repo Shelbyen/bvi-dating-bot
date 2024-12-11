@@ -5,12 +5,12 @@ from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, CallbackQuery, InputMediaPhoto
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 
-from ..keyboards.user_kb import *
+from ..keyboards.user_registration_kb import *
 from ..models.subjects import subjects_dict_to_model
 from ..schemas.photo_schema import PhotoCreate
-from ..schemas.subjects_schema import SubjectsCreate, SubjectsBase
+from ..schemas.subjects_schema import SubjectsCreate
 from ..schemas.user_schema import UserCreate
 from ..services.photo_service import photo_service
 from ..services.subjects_service import subjects_service
@@ -35,6 +35,10 @@ async def start_bot(message: Message, state: FSMContext):
     if await state.get_state() is not None:
         return
     await message.answer('@Test123321hahaBot\n/start - зарегаться\n/get_anc - случайная анкета\n/del_me - удалить себя')
+    await start_registration(message, state)
+
+
+async def start_registration(message: Message, state: FSMContext):
     await message.answer('Имя: ', parse_mode="Markdown")
     await state.set_state(FillingForm.write_name)
 
@@ -49,15 +53,20 @@ async def write_name(message: Message, state: FSMContext):
 @router.callback_query(StateFilter(FillingForm.set_sex), F.data[0] == '0')
 async def set_sex(call: CallbackQuery, state: FSMContext):
     await state.update_data({'sex': call.data.split('|')[1]})
-    await call.message.answer('Выберите класс обучения: ', reply_markup=choosing_class_kb())
+    await call.message.answer('Напиши свой класс: ', reply_markup=choosing_class_kb())
     await state.set_state(FillingForm.set_class)
 
 
-@router.callback_query(StateFilter(FillingForm.set_class), F.data[0] == '1')
-async def set_class(call: CallbackQuery, state: FSMContext):
-    await state.update_data({'school_class': call.data.split('|')[1]})
-    await call.message.answer('Выберите предметы (можно несколько): ', reply_markup=choosing_subject_kb([]))
-    await state.set_state(FillingForm.choosing_subjects)
+@router.message(StateFilter(FillingForm.set_class))
+async def set_class(message: Message, state: FSMContext):
+    if message.text.isdigit() and len(message.text) < 4:
+        if 8 <= int(message.text) <= 11:
+            await state.update_data({'school_class': message.text})
+            send_message = await message.answer('Выберите предметы (можно несколько): ', reply_markup=ReplyKeyboardRemove())
+            await send_message.edit_reply_markup(reply_markup=choosing_subject_kb([]))
+            await state.set_state(FillingForm.choosing_subjects)
+            return
+    await message.answer('Введи класс нормально, только число (только с 8 по 11)')
 
 
 @router.callback_query(StateFilter(FillingForm.choosing_subjects), F.data[0] == '2', F.data[2] == '0',
