@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -33,6 +35,7 @@ async def get_anc(message: Message, state: FSMContext):
 @router.message(F.text == '❤️', StateFilter(ViewForm.view_form))
 async def send_love(message: Message, state: FSMContext):
     form_user_id = await state.get_value('id')
+    logging.info(f'[Send love] {message.from_user.id} -> {form_user_id}')
     bot_answer = await send_message_to_another(message.bot, 'Тебя полюбил @' + str(message.from_user.username),
                                                form_user_id)
     await get_anc(message, state)
@@ -41,6 +44,7 @@ async def send_love(message: Message, state: FSMContext):
 @router.message(F.text == '👎', StateFilter(ViewForm.view_form))
 async def skip_negative(message: Message, state: FSMContext):
     form_user_id = await state.get_value('id')
+    logging.info(f'[Send negative] {message.from_user.id} -> {form_user_id}')
     bot_answer = await send_message_to_another(message.bot, 'Тебя невзлюбил @' + str(message.from_user.username),
                                                form_user_id)
     await get_anc(message, state)
@@ -48,4 +52,5 @@ async def skip_negative(message: Message, state: FSMContext):
 
 @router.message(F.text == 'Скип', StateFilter(ViewForm.view_form))
 async def skip_anc(message: Message, state: FSMContext):
+    logging.info(f'[Skip] {message.from_user.id} -> {await state.get_value("id")}')
     await get_anc(message, state)

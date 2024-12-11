@@ -1,4 +1,6 @@
 import asyncio
+import logging
+from datetime import datetime
 
 from aiogram import Bot, Dispatcher
 
@@ -8,6 +10,15 @@ from src.handlers import routers
 
 async def on_startup():
     print('Бот вышел в онлайн')
+
+
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        filename=f"logs/{settings.VERSION}_{datetime.now().strftime('%d%m%Y_%H%M%S')}.log",
+        filemode="w",
+        format="%(asctime)s %(levelname)s %(message)s"
+    )
 
 
 async def main():

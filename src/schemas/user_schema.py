@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.schemas.photo_schema import PhotoBase
 from src.schemas.subjects_schema import SubjectsBase
@@ -16,6 +16,7 @@ class UserBase(BaseModel):
     school_class: int
     subjects: SubjectsBase
     photos: list[PhotoBase]
+    deactivated: bool = Field(default=False)
 
 
 class UserCreate(BaseModel):
@@ -32,7 +33,7 @@ class UserUpdate(UserBase):
     pass
 
 
-class UserResponse(BaseModel):
+class UserResponse(UserBase):
     pass
 
 

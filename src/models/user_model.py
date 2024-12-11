@@ -31,3 +31,4 @@ class UserModel(Base):
         lazy="joined",
         cascade="all, delete-orphan"
     )
+    deactivated: Mapped[bool] = mapped_column(Boolean, default=False)

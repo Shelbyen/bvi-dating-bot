@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, List
 
 from aiogram import F
@@ -140,7 +141,9 @@ async def set_sex(message: Message, state: FSMContext):
     person['description'] = message.text
     subjects = person.setdefault('subjects', {})
     photos = person.setdefault('photos', [])
-    person.pop('subjects')
+    old_user = person.get('old_user')
+
+    # person.pop('subjects')
     subjects = SubjectsCreate(id=str(message.from_user.id), **subjects_dict_to_model(subjects))
     user = UserCreate(id=str(message.from_user.id), **person)
 
@@ -150,5 +153,14 @@ async def set_sex(message: Message, state: FSMContext):
     await photo_service.create_many(photos)
 
     await message.answer('Поздравляю с успешной регистрацией!!!', reply_markup=user_menu())
-    print('Новый пользователь: ' + str(message.from_user.username))
+
+    if old_user:
+        edited = {}
+        for i in person:
+            if person[i] != old_user[i]:
+                edited[i] = f"{person[i]} -> {old_user[i]}"
+        logging.info('[Edit profile] ' + str(edited))
+    else:
+        logging.info('[New profile] ' + str(message.from_user.id))
+
     await state.clear()

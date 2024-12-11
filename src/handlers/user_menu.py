@@ -25,8 +25,6 @@ async def create_menu(message: Message, state: FSMContext):
 @router.message(F.text == 'Заполнить анкету заново')
 async def del_me(message: Message, state: FSMContext):
     old_user = (await state.get_data()).setdefault('user', await user_service.get(str(message.from_user.id)))
-    await subjects_service.delete(str(message.from_user.id))
-    await photo_service.delete(str(message.from_user.id))
     await user_service.delete(str(message.from_user.id))
     await message.answer('Удалено.', reply_markup=ReplyKeyboardRemove())
     await state.clear()
