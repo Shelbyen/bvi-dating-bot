@@ -125,9 +125,8 @@ async def cancel_sending_photo(call: CallbackQuery, state: FSMContext):
 async def edit_photo(message: Message, state: FSMContext):
     user: UserBase = (await state.get_data()).setdefault('user', await user_service.get(str(message.from_user.id)))
     send_message = await message.answer('Выберите предметы (можно несколько): ')
-    await state.set_data({'old_subjects': get_subjects_string(user.subjects)})
     choosing_subject = model_to_subject_dict(user.subjects)
-    await state.set_data({'subjects': choosing_subject})
+    await state.set_data({'subjects': choosing_subject, 'old_subjects': get_subjects_string(user.subjects)})
     await send_message.edit_reply_markup(reply_markup=choosing_subject_kb(choosing_subject))
     await state.set_state(EditProfile.subjects)
 

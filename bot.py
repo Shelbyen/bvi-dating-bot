@@ -17,7 +17,8 @@ def setup_logging():
         level=logging.INFO,
         filename=f"logs/{settings.VERSION}_{datetime.now().strftime('%d%m%Y_%H%M%S')}.log",
         filemode="w",
-        format="%(asctime)s %(levelname)s %(message)s"
+        format="%(asctime)s %(levelname)s %(message)s",
+        encoding='utf-8'
     )
 
 
@@ -30,6 +31,7 @@ async def main():
     dp.startup.register(on_startup)
 
     await bot.delete_webhook(drop_pending_updates=True)
+    setup_logging()
     await dp.start_polling(bot)
 
 
