@@ -1,11 +1,11 @@
 from aiogram import Router, F
 from aiogram.filters import Command, or_f
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardRemove
 
 from ..handlers.acne_assessment import start_get_anc
 from ..handlers.user_registration import start_bot
-from ..keyboards.user_menu_kb import fill_out
+from ..keyboards.user_menu_kb import user_menu
 from ..services.photo_service import photo_service
 from ..services.subjects_service import subjects_service
 from ..services.user_service import user_service
@@ -17,21 +17,21 @@ router = Router()
 @router.message(or_f(Command(commands=['menu', 'start']), F.text.contains('Моя анкета')))
 async def create_menu(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer('Ваша анкета:', reply_markup=fill_out())
+    await message.answer('Ваша анкета:', reply_markup=user_menu())
     user = (await state.get_data()).setdefault('user', await user_service.get(str(message.from_user.id)))
     await generate_all_message(user, message)
 
 
 @router.message(F.text == 'Заполнить анкету заново')
-async def del_me(call: CallbackQuery, state: FSMContext):
-    old_user = (await state.get_data())['user']
-    await subjects_service.delete(str(call.from_user.id))
-    await photo_service.delete(str(call.from_user.id))
-    await user_service.delete(str(call.from_user.id))
-    await call.message.answer('Удалено.', reply_markup=ReplyKeyboardRemove())
+async def del_me(message: Message, state: FSMContext):
+    old_user = (await state.get_data()).setdefault('user', await user_service.get(str(message.from_user.id)))
+    await subjects_service.delete(str(message.from_user.id))
+    await photo_service.delete(str(message.from_user.id))
+    await user_service.delete(str(message.from_user.id))
+    await message.answer('Удалено.', reply_markup=ReplyKeyboardRemove())
     await state.clear()
     await state.set_data({'old_user': old_user})
-    await start_bot(call.message, state)
+    await start_bot(message, state)
 
 
 @router.message(F.text == 'Смотреть анкеты!')

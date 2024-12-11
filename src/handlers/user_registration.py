@@ -7,6 +7,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 
+from ..keyboards.user_menu_kb import user_menu
 from ..keyboards.user_registration_kb import *
 from ..models.subjects import subjects_dict_to_model
 from ..schemas.photo_schema import PhotoCreate
@@ -62,7 +63,7 @@ async def set_class(message: Message, state: FSMContext):
     if message.text.isdigit() and len(message.text) < 4:
         if 8 <= int(message.text) <= 11:
             await state.update_data({'school_class': message.text})
-            send_message = await message.answer('Выберите предметы (можно несколько): ', reply_markup=ReplyKeyboardRemove())
+            send_message = await message.answer('Выберите предметы (можно несколько): ')
             await send_message.edit_reply_markup(reply_markup=choosing_subject_kb([]))
             await state.set_state(FillingForm.choosing_subjects)
             return
@@ -83,7 +84,7 @@ async def set_subject(call: CallbackQuery, state: FSMContext):
 
 @router.callback_query(StateFilter(FillingForm.choosing_subjects), F.data[0] == '2', F.data[2] == '1')
 async def set_town(call: CallbackQuery, state: FSMContext):
-    await call.message.answer('Введите ваш город: ')
+    await call.message.answer('Введите ваш город: ', reply_markup=ReplyKeyboardRemove())
     await state.set_state(FillingForm.write_town)
 
 
@@ -148,6 +149,6 @@ async def set_sex(message: Message, state: FSMContext):
     await subjects_service.create(subjects)
     await photo_service.create_many(photos)
 
-    await message.answer('Поздравляю с успешной регистрацией!!!')
+    await message.answer('Поздравляю с успешной регистрацией!!!', reply_markup=user_menu())
     print('Новый пользователь: ' + str(message.from_user.username))
     await state.clear()
