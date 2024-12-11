@@ -174,7 +174,7 @@ async def set_sex(message: Message, state: FSMContext):
         if get_subjects_string(user.subjects) != get_subjects_string(old_user['subjects']):
             edited['subjects'] = f"{get_subjects_string(old_user['subjects'])} -> {get_subjects_string(user.subjects)}"
         if len(edited) > 0:
-            logging.info('[Edit profile] ' + str(edited))
+            logging.info('[Edit profile] ' + str(user.id) + ' ' + str(edited))
     else:
         logging.info('[New profile] ' + str(message.from_user.id))
 

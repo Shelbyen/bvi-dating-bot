@@ -64,6 +64,8 @@ async def from_menu_to_forms(message: Message, state: FSMContext):
     else:
         await message.answer('Анкета включена!', reply_markup=user_menu(user.deactivated))
 
+    logging.info('[Edit deactivated] ' + str(user.id) + ' ' + str(user.deactivated))
+
 
 @router.message(F.text.contains('1'))
 async def edit_photo(message: Message, state: FSMContext):
@@ -100,7 +102,7 @@ async def send_new_photo(message: Message, state: FSMContext, album: Optional[Li
     edited = {}
     if user.photos != old_photos:
         edited['subjects'] = f"{old_photos} -> {user.photos}"
-        logging.info('[Edit profile] ' + str(edited))
+        logging.info('[Edit profile] ' + str(user.id) + ' ' + str(edited))
 
     await state.clear()
 
@@ -153,7 +155,7 @@ async def return_to_menu(call: CallbackQuery, state: FSMContext):
     edited = {}
     if get_subjects_string(user.subjects) != old_subjects:
         edited['subjects'] = f"{old_subjects} -> {get_subjects_string(user.subjects)}"
-        logging.info('[Edit profile] ' + str(edited))
+        logging.info('[Edit profile] ' + str(user.id) + ' ' + str(edited))
 
     await call.message.delete()
     await state.clear()
