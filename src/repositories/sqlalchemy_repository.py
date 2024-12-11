@@ -33,7 +33,7 @@ class SqlAlchemyRepository(AbstractRepository, Generic[ModelType, CreateSchemaTy
             stmt = update(self.model).values(**data).filter_by(**filters).returning(self.model)
             res = await session.execute(stmt)
             await session.commit()
-            return res.scalar_one()
+            return res.unique().scalar_one()
 
     async def delete(self, **filters) -> None:
         async with self._session_factory() as session:
